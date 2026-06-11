@@ -2,12 +2,240 @@
 <html lang="fr">
 <head>
   <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>xTalk v1.0</title>
-  <style>body{font-family:sans-serif;padding:2rem}code{background:#eee;padding:.2rem .4rem;border-radius:.3rem}</style>
+  <style>
+    :root{
+      --bg:#0b1020; --panel:#121933; --soft:#1a2347; --text:#eef2ff; --muted:#a7b0d6;
+      --accent:#63e6be; --danger:#ff6b6b; --border:#2a3566;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:Inter,system-ui,sans-serif; background:linear-gradient(180deg,#0b1020,#0f1630);
+      color:var(--text); min-height:100vh; display:grid; place-items:center; padding:20px;
+    }
+    .app{
+      width:min(920px,100%); background:rgba(18,25,51,.92); border:1px solid var(--border);
+      border-radius:20px; overflow:hidden; box-shadow:0 20px 60px rgba(0,0,0,.35);
+    }
+    .top{
+      display:flex; justify-content:space-between; align-items:center; gap:16px;
+      padding:18px 20px; border-bottom:1px solid var(--border); background:rgba(255,255,255,.02);
+    }
+    .brand h1{margin:0; font-size:1.15rem}
+    .brand p{margin:4px 0 0; color:var(--muted); font-size:.92rem}
+    .badge{
+      padding:8px 12px; border-radius:999px; background:#132b26; color:var(--accent);
+      border:1px solid #1d5a4d; font-size:.84rem;
+    }
+    .grid{display:grid; grid-template-columns:320px 1fr}
+    .side{
+      border-right:1px solid var(--border); padding:20px; background:rgba(255,255,255,.02);
+    }
+    .main{display:flex; flex-direction:column; min-height:620px}
+    .label{display:block; margin:0 0 8px; color:var(--muted); font-size:.92rem}
+    input,select,button,textarea{
+      font:inherit; border:none; outline:none;
+    }
+    input, select{
+      width:100%; padding:12px 14px; border-radius:12px; background:var(--soft);
+      color:var(--text); border:1px solid var(--border); margin-bottom:14px;
+    }
+    button{
+      cursor:pointer; padding:12px 14px; border-radius:12px; font-weight:700;
+      transition:.18s ease;
+    }
+    .btn-primary{background:var(--accent); color:#092017}
+    .btn-primary:hover{filter:brightness(1.05)}
+    .btn-soft{
+      background:transparent; color:var(--text); border:1px solid var(--border);
+    }
+    .stack{display:grid; gap:12px}
+    .card{
+      background:rgba(255,255,255,.03); border:1px solid var(--border); border-radius:16px;
+      padding:14px;
+    }
+    .card h3{margin:0 0 8px; font-size:1rem}
+    .card p{margin:0; color:var(--muted); line-height:1.45}
+    .chat-head{
+      display:flex; justify-content:space-between; align-items:center; gap:12px;
+      padding:18px 20px; border-bottom:1px solid var(--border);
+    }
+    .room{
+      display:flex; align-items:center; gap:10px; flex-wrap:wrap;
+    }
+    .pill{
+      background:var(--soft); border:1px solid var(--border); color:var(--text);
+      padding:7px 10px; border-radius:999px; font-size:.9rem;
+    }
+    .messages{
+      flex:1; padding:18px; display:flex; flex-direction:column; gap:10px; overflow:auto;
+      background:
+        radial-gradient(circle at top right, rgba(99,230,190,.08), transparent 28%),
+        transparent;
+    }
+    .msg{
+      max-width:72%; padding:12px 14px; border-radius:16px; line-height:1.4; white-space:pre-wrap;
+      border:1px solid var(--border);
+    }
+    .mine{align-self:flex-end; background:#173127}
+    .their{align-self:flex-start; background:#182042}
+    .meta{margin-top:6px; font-size:.75rem; color:var(--muted)}
+    .composer{
+      display:grid; grid-template-columns:1fr auto; gap:12px; padding:18px; border-top:1px solid var(--border);
+    }
+    textarea{
+      min-height:58px; max-height:180px; resize:vertical; padding:14px; border-radius:14px;
+      background:var(--soft); color:var(--text); border:1px solid var(--border);
+    }
+    .warn{color:#ffd8a8; font-size:.88rem; line-height:1.45}
+    .danger{color:var(--danger)}
+    @media (max-width: 820px){
+      .grid{grid-template-columns:1fr}
+      .side{border-right:none; border-bottom:1px solid var(--border)}
+      .main{min-height:540px}
+      .msg{max-width:88%}
+      .composer{grid-template-columns:1fr}
+    }
+  </style>
 </head>
 <body>
-  <h1>xTalk v1.0</h1>
-  <p>Boilerplate ready.</p>
+  <div class="app">
+    <div class="top">
+      <div class="brand">
+        <h1>xTalk v1.0</h1>
+        <p>Chat anonyme à 2, éphémère, sans compte.</p>
+      </div>
+      <div class="badge">MVP en ligne</div>
+    </div>
+
+    <div class="grid">
+      <aside class="side">
+        <div class="stack">
+          <div>
+            <label class="label" for="nickname">Nom temporaire</label>
+            <input id="nickname" maxlength="20" placeholder="Ex: Ghost" />
+          </div>
+
+          <div>
+            <label class="label" for="roomCode">Code salon</label>
+            <input id="roomCode" maxlength="24" placeholder="Ex: ALPHA-9271" />
+          </div>
+
+          <div>
+            <label class="label" for="ttl">Autodestruction</label>
+            <select id="ttl">
+              <option value="300">5 minutes</option>
+              <option value="1800">30 minutes</option>
+              <option value="3600" selected>1 heure</option>
+              <option value="21600">6 heures</option>
+            </select>
+          </div>
+
+          <button class="btn-primary" id="enterBtn">Entrer dans le salon</button>
+
+          <div class="card">
+            <h3>Mode actuel</h3>
+            <p>Cette V1 est une démo visuelle locale reliée à l’interface. Le temps réel et la logique serveur viendront ensuite.</p>
+          </div>
+
+          <div class="card">
+            <h3>Règles</h3>
+            <p>Pas de compte. Pas d’inscription. Salon à code. Effacement simulé côté interface.</p>
+          </div>
+
+          <p class="warn">
+            Capture impossible à garantir sur le web. Ne promets jamais ça.
+          </p>
+        </div>
+      </aside>
+
+      <section class="main">
+        <div class="chat-head">
+          <div class="room">
+            <span class="pill" id="roomLabel">Salon: non connecté</span>
+            <span class="pill" id="userLabel">Nom: anonyme</span>
+          </div>
+          <button class="btn-soft" id="clearBtn">Autodétruire</button>
+        </div>
+
+        <div class="messages" id="messages">
+          <div class="msg their">
+            Bienvenue sur xTalk v1.0.
+            <div class="meta">Système · maintenant</div>
+          </div>
+          <div class="msg their">
+            Entre un nom temporaire et un code salon. Ensuite, tu peux tester l’interface.
+            <div class="meta">Système · maintenant</div>
+          </div>
+        </div>
+
+        <div class="composer">
+          <textarea id="messageInput" placeholder="Écris un message éphémère..."></textarea>
+          <button class="btn-primary" id="sendBtn">Envoyer</button>
+        </div>
+      </section>
+    </div>
+  </div>
+
+  <script>
+    const nickname = document.getElementById('nickname');
+    const roomCode = document.getElementById('roomCode');
+    const ttl = document.getElementById('ttl');
+    const roomLabel = document.getElementById('roomLabel');
+    const userLabel = document.getElementById('userLabel');
+    const enterBtn = document.getElementById('enterBtn');
+    const clearBtn = document.getElementById('clearBtn');
+    const sendBtn = document.getElementById('sendBtn');
+    const messageInput = document.getElementById('messageInput');
+    const messages = document.getElementById('messages');
+
+    let currentRoom = '';
+    let currentUser = 'anonyme';
+
+    function nowLabel() {
+      return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+    }
+
+    function addMessage(text, mine = true) {
+      const el = document.createElement('div');
+      el.className = 'msg ' + (mine ? 'mine' : 'their');
+      const safe = document.createElement('div');
+      safe.textContent = text;
+      const meta = document.createElement('div');
+      meta.className = 'meta';
+      meta.textContent = (mine ? currentUser : 'Système') + ' · ' + nowLabel();
+      el.appendChild(safe);
+      el.appendChild(meta);
+      messages.appendChild(el);
+      messages.scrollTop = messages.scrollHeight;
+    }
+
+    enterBtn.addEventListener('click', () => {
+      currentUser = nickname.value.trim() || 'anonyme';
+      currentRoom = roomCode.value.trim() || 'NON-DEFINI';
+      roomLabel.textContent = 'Salon: ' + currentRoom;
+      userLabel.textContent = 'Nom: ' + currentUser;
+      addMessage('Connexion simulée au salon ' + currentRoom + ' · TTL ' + ttl.options[ttl.selectedIndex].text, false);
+    });
+
+    sendBtn.addEventListener('click', () => {
+      const text = messageInput.value.trim();
+      if (!text) return;
+      addMessage(text, true);
+      messageInput.value = '';
+    });
+
+    clearBtn.addEventListener('click', () => {
+      messages.innerHTML = '';
+      addMessage('Salon autodétruit localement. Historique effacé de l’interface.', false);
+    });
+
+    messageInput.addEventListener('keydown', (e) => {
+      if ((e.metaKey || e.ctrlKey) && e.key === 'Enter') {
+        sendBtn.click();
+      }
+    });
+  </script>
 </body>
 </html>
